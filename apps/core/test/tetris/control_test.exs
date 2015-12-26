@@ -82,63 +82,63 @@ defmodule Tetris.ControlTest do
     tetramino = Tetris.Tetramino.create_from_shape(2)
     Tetris.Board.set_stone board, tetramino
     Tetris.Board.set_stone empty_board, tetramino
-    {:ok, board: board, empty_board: empty_board, tetramino: tetramino}
+    {:ok, board: board, empty_board: empty_board}
   end
 
   # TODO: remove tetramino from handle call. We can get it from the board itself
-  test "#handle handles moving right", %{board: board, tetramino: tetramino} do
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_right)
-    assert tetramino.x == 4
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_right)
-    assert tetramino.x == 5
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_right)
-    assert tetramino.x == 6
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_right)
-    assert tetramino.x == 7
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_right)
-    assert tetramino.x == 7
+  test "#handle handles moving right", %{board: board} do
+    Tetris.Control.handle(board, :move_right)
+    assert Tetris.Board.get_current_stone(board).x == 4
+    Tetris.Control.handle(board, :move_right)
+    assert Tetris.Board.get_current_stone(board).x == 5
+    Tetris.Control.handle(board, :move_right)
+    assert Tetris.Board.get_current_stone(board).x == 6
+    Tetris.Control.handle(board, :move_right)
+    assert Tetris.Board.get_current_stone(board).x == 7
+    Tetris.Control.handle(board, :move_right)
+    assert Tetris.Board.get_current_stone(board).x == 7
   end
 
-  test "#handle handles moving left", %{board: board, tetramino: tetramino} do
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_left)
-    assert tetramino.x == 2
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_left)
-    assert tetramino.x == 1
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_left)
-    assert tetramino.x == 0
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_left)
-    assert tetramino.x == -1
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_left)
-    assert tetramino.x == -1
+  test "#handle handles moving left", %{board: board} do
+    Tetris.Control.handle(board, :move_left)
+    assert Tetris.Board.get_current_stone(board).x == 2
+    Tetris.Control.handle(board, :move_left)
+    assert Tetris.Board.get_current_stone(board).x == 1
+    Tetris.Control.handle(board, :move_left)
+    assert Tetris.Board.get_current_stone(board).x == 0
+    Tetris.Control.handle(board, :move_left)
+    assert Tetris.Board.get_current_stone(board).x == -1
+    Tetris.Control.handle(board, :move_left)
+    assert Tetris.Board.get_current_stone(board).x == -1
   end
 
-  test "#handle handles moving down", %{empty_board: board, tetramino: tetramino} do
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_down)
-    assert tetramino.y == 1
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_down)
-    assert tetramino.y == 2
-    tetramino = Tetris.Control.handle({board, tetramino}, :move_down)
-    assert tetramino.y == 3
+  test "#handle handles moving down", %{empty_board: board} do
+    Tetris.Control.handle(board, :move_down)
+    assert Tetris.Board.get_current_stone(board).y == 1
+    Tetris.Control.handle(board, :move_down)
+    assert Tetris.Board.get_current_stone(board).y == 2
+    Tetris.Control.handle(board, :move_down)
+    assert Tetris.Board.get_current_stone(board).y == 3
   end
 
-  test "#handle fixes stone when moving down when it is already at the bottom", %{empty_board: empty_board, tetramino: tetramino} do
-    tetramino = %Tetris.Tetramino{tetramino | y: 18 }
+  test "#handle fixes stone when moving down when it is already at the bottom", %{empty_board: empty_board} do
+    tetramino = %Tetris.Tetramino{Tetris.Board.get_current_stone(empty_board) | y: 18 }
     Tetris.Board.set_stone empty_board, tetramino
-    tetramino = Tetris.Control.handle({empty_board, tetramino}, :move_down)
-    assert tetramino.y == 19
+    Tetris.Control.handle(empty_board, :move_down)
+    assert Tetris.Board.get_current_stone(empty_board).y == 19
 
-    tetramino = Tetris.Control.handle({empty_board, tetramino}, :move_down)
+    Tetris.Control.handle(empty_board, :move_down)
     assert is_nil Tetris.Board.get_current_stone(empty_board)
     assert Tetris.Board.get_fixed_layout(empty_board) == @empty_playground_after_drop
   end
 
-  test "#handle allows to drop piece to the bottom", %{board: board, empty_board: empty_board, tetramino: tetramino} do
-    Tetris.Control.handle({board, tetramino}, :drop)
+  test "#handle allows to drop piece to the bottom", %{board: board, empty_board: empty_board} do
+    Tetris.Control.handle(board, :drop)
 
     assert is_nil Tetris.Board.get_current_stone(board)
     assert Tetris.Board.get_fixed_layout(board) == @some_playground_after_drop
 
-    Tetris.Control.handle({empty_board, tetramino}, :drop)
+    Tetris.Control.handle(empty_board, :drop)
 
     assert is_nil Tetris.Board.get_current_stone(empty_board)
     assert Tetris.Board.get_fixed_layout(empty_board) == @empty_playground_after_drop

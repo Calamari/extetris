@@ -8,28 +8,32 @@ defmodule Tetris.Control do
   """
   @spec handle({pid, struct}, :atom) :: struct
 
-  def handle({board, _}, :drop) do
+  def handle(board, :drop) do
     Tetris.Board.drop_stone(board)
     nil
   end
-  def handle({board, tetramino}, :move_down) do
+  def handle(board, :move_down) do
+    tetramino = Tetris.Board.get_current_stone(board)
     new_tetramino = %Tetris.Tetramino{tetramino | y: tetramino.y+1}
     layout = Tetris.Board.get_fixed_layout(board)
     cond do
-      Tetris.Board.valid_position?(new_tetramino, layout) -> new_tetramino
+      Tetris.Board.valid_position?(new_tetramino, layout) ->
+        Tetris.Board.set_stone(board, new_tetramino)
       :else                                               ->
         Tetris.Board.drop_stone(board)
         nil
     end
   end
 
-  def handle({board, tetramino}, dir) do
+  def handle(board, dir) do
+    tetramino = Tetris.Board.get_current_stone(board)
     new_tetramino = do_handle(tetramino, dir)
     layout = Tetris.Board.get_fixed_layout(board)
-    cond do
+    tetramino = cond do
       Tetris.Board.valid_position?(new_tetramino, layout) -> new_tetramino
       :else                                               -> tetramino
     end
+    Tetris.Board.set_stone(board, tetramino)
   end
 
   defp do_handle(tetramino, :move_right) do

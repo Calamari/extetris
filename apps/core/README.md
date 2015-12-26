@@ -1,4 +1,4 @@
-# Tetris
+# Core
 
 **TODO: Add description**
 
@@ -6,14 +6,14 @@
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
-  1. Add  to your list of dependencies in `mix.exs`:
+  1. Add core to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:, "~> 0.0.1"}]
+          [{:core, "~> 0.0.1"}]
         end
 
-  2. Ensure  is started before your application:
+  2. Ensure core is started before your application:
 
         def application do
-          [applications: [:]]
+          [applications: [:core]]
         end

@@ -77,6 +77,31 @@ defmodule Tetris.BoardTest do
     [0,0,0,0,0,0,0,0,0,0]
   ]
 
+  @finished_board [
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,1,2,3,4,5,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,1,0,0,0,0],
+      [0,0,0,0,0,1,0,0,0,0],
+      [0,0,0,0,0,1,0,0,0,0],
+      [0,0,0,0,0,1,0,0,0,0]
+    ]
+
   setup do
     {:ok, board} = Tetris.Board.start_link
     {:ok, board: board}
@@ -304,5 +329,26 @@ defmodule Tetris.BoardTest do
 
     assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 6, y: 16}, @some_playground) == true
     assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 5, y: 16}, @some_playground) == false
+  end
+
+  test "#finished? gets true if a newly create stone is put on a invalid position", %{board: board} do
+    Tetris.Board.set_layout board, @finished_board
+
+    assert Tetris.Board.finished?(board) == false
+
+    Tetris.Board.tick board
+    assert Tetris.Board.finished?(board) == true
+  end
+
+  test "#tick does not do anything anymore, after board is finished", %{board: board} do
+    Tetris.Board.set_layout board, @finished_board
+
+    Tetris.Board.tick board
+    layout_after_last_tick = Tetris.Board.get_current_layout(board)
+    assert Tetris.Board.finished?(board) == true
+
+    Tetris.Board.tick board
+
+    assert Tetris.Board.get_current_layout(board) == layout_after_last_tick
   end
 end

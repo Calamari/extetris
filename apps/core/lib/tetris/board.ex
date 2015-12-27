@@ -17,6 +17,7 @@ defmodule Tetris.Board do
         @row, @row, @row, @row, @row, @row, @row, @row, @row, @row,
         @row, @row
       ],
+      is_finished: false,
       next_stone: nil,
       current_stone: nil
   end
@@ -104,6 +105,14 @@ defmodule Tetris.Board do
   """
   def tick(board) do
     GenServer.call(board, {:tick})
+  end
+
+
+  @doc """
+  Tells you, if the game is finished already
+  """
+  def finished?(board) do
+    GenServer.call(board, {:is_finished})
   end
 
 
@@ -200,6 +209,11 @@ defmodule Tetris.Board do
     {:reply, state.state.current_stone, state}
   end
 
+
+  def handle_call({:is_finished}, _from, state) do
+    {:reply, state.state.is_finished, state}
+  end
+
   def handle_call({:drop_stone}, _from, state) do
     tetramino = state.state.current_stone
     rows = do_drop_stone(tetramino, state.state.rows) |>
@@ -210,16 +224,19 @@ defmodule Tetris.Board do
 
 
   def handle_call({:tick}, _from, state) do
-    state = case state.state.current_stone do
-      nil -> create_new_tetramino(state)
-      tetramino -> move_tetramino_down(state, tetramino)
+    if !state.state.is_finished do
+      state = case state.state.current_stone do
+        nil -> create_new_tetramino(state)
+        tetramino -> move_tetramino_down(state, tetramino)
+      end
     end
     {:reply, state.state.current_stone, state}
   end
 
   defp create_new_tetramino(state) do
     new_tetramino = %Tetris.Tetramino{}
-    state = Dict.put(state, :state, %{state.state | current_stone: new_tetramino})
+    is_finished = !valid_position?(new_tetramino, state.state.rows)
+    state = Dict.put(state, :state, %{state.state | current_stone: new_tetramino, is_finished: is_finished})
   end
 
   defp move_tetramino_down(state, tetramino) do

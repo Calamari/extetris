@@ -81,6 +81,22 @@ defmodule MatrixTest do
     assert Matrix.zip(m1, m2) == {:error, :NOT_SAME_SIZE}
   end
 
+  test "#pad_row does nothing if size is 0" do
+    assert Matrix.pad_row([1,2,3], 0) == [1,2,3]
+  end
+
+  test "#pad_row does something if size is 1" do
+    assert Matrix.pad_row([1,2,3], 1) == [0, 1,2,3]
+  end
+
+  test "#pad_row_after does nothing if size is 0" do
+    assert Matrix.pad_row_after([1,2,3], 0) == [1,2,3]
+  end
+
+  test "#pad_row_after does something if size is 1" do
+    assert Matrix.pad_row_after([1,2,3], 1) == [1,2,3,0]
+  end
+
   test "#create_matrix can create a matrix with given dimensions and all threes" do
     assert Matrix.create_matrix(2, 3, 3) == [
       [3,3],

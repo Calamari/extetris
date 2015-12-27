@@ -63,14 +63,18 @@ defmodule Tetris.Board do
   defp padded_stone(tetramino) do
     pad_size_before = tetramino.x
     pad_size_after = 6 - tetramino.x
-    Enum.map tetramino.shape, fn(row) ->
+    tetramino = Enum.map tetramino.shape, fn(row) ->
       Matrix.pad_row(row, pad_size_before) |>
-        Matrix.pad_row_after(pad_size_after)
+      Matrix.pad_row_after(pad_size_after)
     end
+    # Ensure it is not wider then the board
+    # This can happen, if stone is partly out to the side
+    Matrix.slice(tetramino, 0, 0, 10, 4)
   end
 
   defp fix_stone_to_board(tetramino, rows) do
-    # It also takes care if the stone is partly below the board already
+    # It also takes care if the stone is partly below the board already,
+    # or moved partly out to the sides
     rows_on_the_board = Enum.min [4, Matrix.num_rows(rows) - tetramino.y]
     spliced_rows = Matrix.rows_at(rows, tetramino.y, rows_on_the_board) |>
       Matrix.add padded_stone(tetramino) |>

@@ -326,9 +326,11 @@ defmodule Matrix do
   @spec pad_row(row, number) :: row
   @spec pad_row(row, number, number) :: row
 
-  def pad_row(row, size, pad_value \\ 0) do
+  def pad_row(row, size, pad_value \\ 0)
+  def pad_row(row, size, pad_value) when size > 0 do
     Enum.map(1..size, fn (_) -> pad_value end) ++ row
   end
+  def pad_row(row, _, _), do: row
 
 
   @doc """
@@ -342,7 +344,9 @@ defmodule Matrix do
   @spec pad_row_after(row, number) :: row
   @spec pad_row_after(row, number, number) :: row
 
-  def pad_row_after(row, size, pad_value \\ 0) do
+  def pad_row_after(row, size, pad_value \\ 0)
+  def pad_row_after(row, size, pad_value) when size > 0 do
     row ++ Enum.map(1..size, fn (_) -> pad_value end)
   end
+  def pad_row_after(row, _, _), do: row
 end

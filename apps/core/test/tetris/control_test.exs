@@ -121,6 +121,32 @@ defmodule Tetris.ControlTest do
     assert Tetris.Board.get_current_stone(board).y == 3
   end
 
+  test "#handle handles rotating left", %{empty_board: board} do
+    tetramino = Tetris.Tetramino.create_from_shape(1)
+    Tetris.Board.set_stone board, tetramino
+
+    Tetris.Control.handle(board, :rotate_left)
+    assert Tetris.Board.get_current_stone(board).shape == [
+      [0,0,0,0],
+      [1,1,1,1],
+      [0,0,0,0],
+      [0,0,0,0]
+    ]
+  end
+
+  test "#handle handles rotating right", %{empty_board: board} do
+    tetramino = Tetris.Tetramino.create_from_shape(1)
+    Tetris.Board.set_stone board, tetramino
+
+    Tetris.Control.handle(board, :rotate_right)
+    assert Tetris.Board.get_current_stone(board).shape == [
+      [0,0,0,0],
+      [0,0,0,0],
+      [1,1,1,1],
+      [0,0,0,0]
+    ]
+  end
+
   test "#handle fixes stone when moving down when it is already at the bottom", %{empty_board: empty_board} do
     tetramino = %Tetris.Tetramino{Tetris.Board.get_current_stone(empty_board) | y: 18 }
     Tetris.Board.set_stone empty_board, tetramino

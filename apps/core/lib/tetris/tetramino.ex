@@ -93,6 +93,14 @@ defmodule Tetris.Tetramino do
     %Tetris.Tetramino{shape: shape}
   end
 
+  def rotate_left(tetramino) do
+    %Tetris.Tetramino{tetramino | shape: Shape.rotate_left(tetramino.shape)}
+  end
+
+  def rotate_right(tetramino) do
+    %Tetris.Tetramino{tetramino | shape: Shape.rotate_right(tetramino.shape)}
+  end
+
   @doc """
   Moves given tetramino one row down
   iex> tetramino = Tetris.Tetramino.create_from_shape(2)

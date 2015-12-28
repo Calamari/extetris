@@ -124,6 +124,13 @@ defmodule Tetris.BoardTest do
     assert false == Tetris.Board.row_full?([1,1,1,0,1,1,1,1,1,1])
   end
 
+  test "We can pass a callback where new stones will be get from" do
+    our_stone = %Tetris.Tetramino{y: 10}
+    {:ok, board} = Tetris.Board.start_link next_stone_callback: fn -> our_stone end
+    Tetris.Board.tick board
+    assert Tetris.Board.get_current_stone(board) == our_stone
+  end
+
   test "#get_fixed_layout does not contain the stone flying around", %{board: board} do
     Tetris.Board.set_stone(board, Tetris.Tetramino.create_from_shape(2))
     assert Tetris.Board.get_fixed_layout(board) == [

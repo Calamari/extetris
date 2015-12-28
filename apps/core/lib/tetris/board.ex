@@ -27,7 +27,7 @@ defmodule Tetris.Board do
   Starts a new game of Tetris
   """
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    GenServer.start_link(__MODULE__, {:ok, opts[:next_stone_callback]}, [])
   end
 
 
@@ -47,6 +47,13 @@ defmodule Tetris.Board do
     board
   end
 
+  @doc """
+  Register handler for n
+  """
+  def create_board do
+    {:ok, board} = Tetris.Board.start_link
+    board
+  end
 
   @doc """
   Returns an Array of Array representation of the current board including the current
@@ -173,8 +180,13 @@ defmodule Tetris.Board do
 
   ## Server Callbacks
 
-  def init(:ok) do
-    state = %{state: %State{} }
+  def init({:ok, next_stone_callback}) do
+    next_stone_callback = cond do
+      next_stone_callback -> next_stone_callback
+      true -> fn -> Tetris.Tetramino.create_random end
+    end
+
+    state = %{state: %State{}, next_stone_callback: next_stone_callback}
     {:ok, state}
   end
 
@@ -234,7 +246,7 @@ defmodule Tetris.Board do
   end
 
   defp create_new_tetramino(state) do
-    new_tetramino = %Tetris.Tetramino{}
+    new_tetramino = state.next_stone_callback.()
     is_finished = !valid_position?(new_tetramino, state.state.rows)
     state = Dict.put(state, :state, %{state.state | current_stone: new_tetramino, is_finished: is_finished})
   end

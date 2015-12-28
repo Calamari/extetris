@@ -36,7 +36,7 @@ defmodule Tetris.GameTest do
     assert :ok == Tetris.Game.start_game(game)
   end
 
-  test "starting a game gives every player a board ", %{game: game} do
+  test "starting a game gives every player a board and a stone ", %{game: game} do
     Tetris.Game.add_player(game, %Tetris.Player{name: 'John' })
     Tetris.Game.add_player(game, %Tetris.Player{name: 'Doe' })
     Tetris.Game.start_game(game)
@@ -44,19 +44,39 @@ defmodule Tetris.GameTest do
     [player1, player2] = Tetris.Game.players(game)
     assert is_pid player1.board
     assert is_pid player2.board
+
+    stone1 = Tetris.Board.get_current_stone(player1.board)
+    assert stone1.x == 3
+    assert stone1.y == 0
+
+    stone2 = Tetris.Board.get_current_stone(player1.board)
+    assert stone2.x == 3
+    assert stone2.y == 0
   end
 
-  test "starting a game selects the same stone for every board", %{game: game} do
-    Tetris.Game.add_player(game, %Tetris.Player{name: 'John' })
+  # TODO: Do this functionality and then uncomment it.
+  #       Maybe do this as game config.
+  # test "starting a game selects the same stone for every board", %{game: game} do
+  #   Tetris.Game.add_player(game, %Tetris.Player{name: 'John' })
+  #   Tetris.Game.add_player(game, %Tetris.Player{name: 'Doe' })
+  #   Tetris.Game.start_game(game)
+
+  #   [player1, player2] = Tetris.Game.players(game)
+  #   stone1 = Tetris.Board.get_current_stone(player1.board)
+  #   stone2 = Tetris.Board.get_current_stone(player2.board)
+
+  #   assert stone1.x == 3
+  #   assert stone1.y == 0
+  #   assert stone1 == stone2
+  # end
+
+  test "#next_stone will return a randomly generated new stone", %{game: game} do
     Tetris.Game.add_player(game, %Tetris.Player{name: 'Doe' })
     Tetris.Game.start_game(game)
 
-    [player1, player2] = Tetris.Game.players(game)
-    stone1 = Tetris.Board.get_current_stone(player1.board)
-    stone2 = Tetris.Board.get_current_stone(player2.board)
+    stone1 = Tetris.Game.next_stone game
+    stone2 = Tetris.Game.next_stone game
 
-    assert stone1.x == 3
-    assert stone1.y == 0
-    assert stone1 == stone2
+    assert stone1 != stone2
   end
 end

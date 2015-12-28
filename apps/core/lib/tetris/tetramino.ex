@@ -93,6 +93,10 @@ defmodule Tetris.Tetramino do
     %Tetris.Tetramino{shape: shape}
   end
 
+  def create_random do
+    %Tetris.Tetramino{shape: Shape.random}
+  end
+
   def rotate_left(tetramino) do
     %Tetris.Tetramino{tetramino | shape: Shape.rotate_left(tetramino.shape)}
   end

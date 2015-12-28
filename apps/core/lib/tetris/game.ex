@@ -65,6 +65,14 @@ defmodule Tetris.Game do
     GenServer.call(game, {:get_players})
   end
 
+
+  @doc """
+  Returns a new random stone
+  """
+  def next_stone(game) do
+    GenServer.call(game, {:next_stone})
+  end
+
   @doc """
   Starts a game if it is ready.
 
@@ -95,6 +103,7 @@ defmodule Tetris.Game do
   ## Server Callbacks
 
   def init(:ok) do
+    :random.seed(:erlang.now())
     state = %{players: [], started: false}
     {:ok, state}
   end
@@ -117,11 +126,15 @@ defmodule Tetris.Game do
     {:reply, result, state}
   end
 
+  def handle_call({:next_stone}, _from, state) do
+    {:reply, Tetris.Tetramino.create_random, state}
+  end
+
   def handle_call({:start_game}, _from, state) do
     state = Dict.put(state, :started, true)
     state = Dict.put(state, :players, Enum.map(state.players, fn (player) ->
-      {:ok, board} = Tetris.Board.start_link
-      Tetris.Board.set_stone(board, %Tetris.Tetramino{})
+      {:ok, board} = Tetris.Board.start_link next_stone_callback: fn -> Tetris.Tetramino.create_random end
+      Tetris.Board.set_stone board, Tetris.Tetramino.create_random
       %Tetris.Player{player | board: board}
     end))
 

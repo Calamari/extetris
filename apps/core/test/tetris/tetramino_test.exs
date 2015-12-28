@@ -91,6 +91,15 @@ defmodule Tetris.TetraminoTest do
   use ExUnit.Case, async: true
   doctest Tetris.Tetramino
 
+  test "#create_random returns a (mostly) random Tetramino" do
+    assert Tetris.Tetramino.create_random.shape != Tetris.Tetramino.create_random.shape
+  end
+
+  test "#create_random always positions on x:3, y:0" do
+    assert Tetris.Tetramino.create_random.x == 3
+    assert Tetris.Tetramino.create_random.y == 0
+  end
+
   test "#rotate_right rotates piece one step to the right" do
     original_piece = Tetris.Tetramino.create_from_shape(1)
 

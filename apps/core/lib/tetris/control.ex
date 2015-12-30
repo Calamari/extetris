@@ -14,26 +14,30 @@ defmodule Tetris.Control do
   end
   def handle(board, :move_down) do
     tetramino = Tetris.Board.get_current_stone(board)
-    new_tetramino = %Tetris.Tetramino{tetramino | y: tetramino.y+1}
-    layout = Tetris.Board.get_fixed_layout(board)
-    cond do
-      Tetris.Board.valid_position?(new_tetramino, layout) ->
-        Tetris.Board.set_stone(board, new_tetramino)
-      :else                                               ->
-        Tetris.Board.drop_stone(board)
-        nil
+    if tetramino do
+      new_tetramino = %Tetris.Tetramino{tetramino | y: tetramino.y+1}
+      layout = Tetris.Board.get_fixed_layout(board)
+      cond do
+        Tetris.Board.valid_position?(new_tetramino, layout) ->
+          Tetris.Board.set_stone(board, new_tetramino)
+        :else                                               ->
+          Tetris.Board.drop_stone(board)
+          nil
+      end
     end
   end
 
   def handle(board, dir) do
     tetramino = Tetris.Board.get_current_stone(board)
-    new_tetramino = do_handle(tetramino, dir)
-    layout = Tetris.Board.get_fixed_layout(board)
-    tetramino = cond do
-      Tetris.Board.valid_position?(new_tetramino, layout) -> new_tetramino
-      :else                                               -> tetramino
+    if tetramino do
+      new_tetramino = do_handle(tetramino, dir)
+      layout = Tetris.Board.get_fixed_layout(board)
+      tetramino = cond do
+        Tetris.Board.valid_position?(new_tetramino, layout) -> new_tetramino
+        :else                                               -> tetramino
+      end
+      Tetris.Board.set_stone(board, tetramino)
     end
-    Tetris.Board.set_stone(board, tetramino)
   end
 
   defp do_handle(tetramino, :move_right) do

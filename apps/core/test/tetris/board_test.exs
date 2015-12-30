@@ -358,4 +358,8 @@ defmodule Tetris.BoardTest do
 
     assert Tetris.Board.get_current_layout(board) == layout_after_last_tick
   end
+
+  test "#drop_stone does not break the process if no stone is set", %{board: board} do
+    Tetris.Board.drop_stone board
+  end
 end

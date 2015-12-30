@@ -228,9 +228,11 @@ defmodule Tetris.Board do
 
   def handle_call({:drop_stone}, _from, state) do
     tetramino = state.state.current_stone
-    rows = do_drop_stone(tetramino, state.state.rows) |>
-      fix_stone_to_board state.state.rows
-    state = Dict.put(state, :state, %{state.state | current_stone: nil, rows: rows})
+    if tetramino do
+      rows = do_drop_stone(tetramino, state.state.rows) |>
+        fix_stone_to_board state.state.rows
+      state = Dict.put(state, :state, %{state.state | current_stone: nil, rows: rows})
+    end
     {:reply, :ok, state}
   end
 

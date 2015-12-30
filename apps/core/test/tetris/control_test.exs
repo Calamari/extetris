@@ -169,4 +169,12 @@ defmodule Tetris.ControlTest do
     assert is_nil Tetris.Board.get_current_stone(empty_board)
     assert Tetris.Board.get_fixed_layout(empty_board) == @empty_playground_after_drop
   end
+
+  test "#handle does not break process if no tetramino is on the board", %{board: board} do
+    Tetris.Board.set_stone board, nil
+
+    Enum.each [:drop, :move_right, :move_left, :move_down, :rotate_left, :rotate_right], fn (action) ->
+      Tetris.Control.handle(board, action)
+    end
+  end
 end

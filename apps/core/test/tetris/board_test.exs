@@ -162,9 +162,9 @@ defmodule Tetris.BoardTest do
   test "#get_current_layout always contains the stone flying around", %{board: board} do
     Tetris.Board.set_stone(board, Tetris.Tetramino.create_from_shape(2))
     assert Tetris.Board.get_current_layout(board) == [
+      [0,0,0,0,2,2,0,0,0,0],
+      [0,0,0,0,2,2,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,2,2,0,0,0,0],
-      [0,0,0,0,2,2,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
@@ -191,10 +191,10 @@ defmodule Tetris.BoardTest do
     Tetris.Board.set_stone(board, %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 0 })
 
     assert Tetris.Board.get_current_layout(board) == [
-      [0,0,1,0,0,0,0,0,0,0],
-      [0,0,1,0,0,0,0,0,0,0],
-      [0,0,1,0,0,0,0,0,0,0],
-      [0,0,1,0,0,0,0,0,0,0],
+      [1,0,0,0,0,0,0,0,0,0],
+      [1,0,0,0,0,0,0,0,0,0],
+      [1,0,0,0,0,0,0,0,0,0],
+      [1,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
@@ -215,7 +215,7 @@ defmodule Tetris.BoardTest do
       [0,0,0,0,0,0,0,0,0,0]
     ]
 
-    Tetris.Board.set_stone(board, %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 7 })
+    Tetris.Board.set_stone(board, %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 9 })
 
     assert Tetris.Board.get_current_layout(board) == [
       [0,0,0,0,0,0,0,0,0,1],
@@ -296,10 +296,10 @@ defmodule Tetris.BoardTest do
       [0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,1,0,0,0,0],
-      [0,0,0,0,0,1,0,0,0,0],
-      [0,0,0,0,0,1,0,0,0,0],
-      [0,0,0,0,0,1,0,0,0,0]
+      [0,0,0,1,0,0,0,0,0,0],
+      [0,0,0,1,0,0,0,0,0,0],
+      [0,0,0,1,0,0,0,0,0,0],
+      [0,0,0,1,0,0,0,0,0,0]
     ]
   end
 
@@ -322,20 +322,18 @@ defmodule Tetris.BoardTest do
     assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | y: 19}, @empty_playground) == false
 
     # to the left
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: -1}, @empty_playground) == true
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: -2}, @empty_playground) == true
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: -3}, @empty_playground) == false
+    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: -1}, @empty_playground) == false
 
     # to the right
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 7}, @empty_playground) == true
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 8}, @empty_playground) == false
+    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 9}, @empty_playground) == true
+    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 10}, @empty_playground) == false
   end
 
   test "#valid_position? checks if stone is on top of other stone", _ do
     tetramino = Tetris.Tetramino.create_from_shape(4) # Z-shape
 
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 6, y: 16}, @some_playground) == true
-    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 5, y: 16}, @some_playground) == false
+    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 7, y: 17}, @some_playground) == true
+    assert Tetris.Board.valid_position?(%Tetris.Tetramino{tetramino | x: 6, y: 17}, @some_playground) == false
   end
 
   test "#finished? gets true if a newly create stone is put on a invalid position", %{board: board} do
@@ -357,6 +355,10 @@ defmodule Tetris.BoardTest do
     Tetris.Board.tick board
 
     assert Tetris.Board.get_current_layout(board) == layout_after_last_tick
+  end
+
+  test "given on_tick callback is called after each tick" do
+    # {:ok, board} = Tetris.Board.start_link on_tick: fn (layout) ->
   end
 
   test "#drop_stone does not break the process if no stone is set", %{board: board} do

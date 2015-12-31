@@ -48,14 +48,6 @@ defmodule Tetris.Board do
   end
 
   @doc """
-  Register handler for n
-  """
-  def create_board do
-    {:ok, board} = Tetris.Board.start_link
-    board
-  end
-
-  @doc """
   Returns an Array of Array representation of the current board including the current
   stone that is flying down.
   """
@@ -70,23 +62,19 @@ defmodule Tetris.Board do
 
   defp padded_stone(tetramino) do
     pad_size_before = tetramino.x
-    pad_size_after = 6 - tetramino.x
-    tetramino = Enum.map tetramino.shape, fn(row) ->
+    pad_size_after = 10 - (Matrix.num_columns(tetramino.shape) + tetramino.x)
+    Enum.map tetramino.shape, fn(row) ->
       Matrix.pad_row(row, pad_size_before) |>
       Matrix.pad_row_after(pad_size_after)
     end
-    # Ensure it is not wider then the board
-    # This can happen, if stone is partly out to the side
-    Matrix.slice(tetramino, 0, 0, 10, 4)
   end
 
   defp fix_stone_to_board(tetramino, rows) do
-    # It also takes care if the stone is partly below the board already,
-    # or moved partly out to the sides
-    rows_on_the_board = Enum.min [4, Matrix.num_rows(rows) - tetramino.y]
-    spliced_rows = Matrix.rows_at(rows, tetramino.y, rows_on_the_board) |>
-      Matrix.add padded_stone(tetramino) |>
-      Matrix.rows_at 0, rows_on_the_board
+    rows_on_the_board = Enum.min [Matrix.num_rows(tetramino.shape), Matrix.num_rows(rows) - tetramino.y]
+    spliced_rows = rows
+                   |> Matrix.rows_at(tetramino.y, rows_on_the_board)
+                   |> Matrix.add padded_stone(tetramino)
+                   |> Matrix.rows_at 0, rows_on_the_board
     Matrix.replace_rows(rows, tetramino.y, spliced_rows)
   end
 
@@ -250,7 +238,7 @@ defmodule Tetris.Board do
   defp create_new_tetramino(state) do
     new_tetramino = state.next_stone_callback.()
     is_finished = !valid_position?(new_tetramino, state.state.rows)
-    state = Dict.put(state, :state, %{state.state | current_stone: new_tetramino, is_finished: is_finished})
+    Dict.put(state, :state, %{state.state | current_stone: new_tetramino, is_finished: is_finished})
   end
 
   defp move_tetramino_down(state, tetramino) do
@@ -287,40 +275,25 @@ defmodule Tetris.Board do
   end
 
   defp any_collision?(tetramino, rows) do
-    Matrix.slice(rows, tetramino.x, tetramino.y, 4, 4) |>
-      Stream.zip(tetramino.shape) |>
-      Enum.any? fn {ra, rb} ->
-        Stream.zip(ra, rb) |>
-          Enum.any? fn {a, b} -> a != 0 && b != 0 end
-      end
+    {w, h} = Matrix.size(tetramino.shape)
+    rows
+    |> Matrix.slice(tetramino.x, tetramino.y, w, h)
+    |> Stream.zip(tetramino.shape)
+    |> Enum.any? fn {ra, rb} ->
+      Stream.zip(ra, rb) |>
+        Enum.any? fn {a, b} -> a != 0 && b != 0 end
+    end
   end
 
   defp below_board?(tetramino) do
-    cond do
-      tetramino.y > 19 -> true
-      tetramino.y > 18 ->
-        Matrix.row_at(tetramino.shape, 3) |> Enum.any? fn y -> y != 0 end
-      :else            -> false
-    end
+    Matrix.num_rows(tetramino.shape) + tetramino.y > 22
   end
 
   defp left_of_board?(tetramino) do
-    cond do
-      tetramino.x < 0 ->
-        Matrix.slice(tetramino.shape, 0, 0, -tetramino.x, 4) |>
-          Matrix.any? fn x -> x != 0 end
-      :else           ->
-        false
-    end
+    tetramino.x < 0
   end
 
   defp right_of_board?(tetramino) do
-    cond do
-      tetramino.x > 6 ->
-        Matrix.slice(tetramino.shape, 6-tetramino.x, 0, tetramino.x-6, 4) |>
-          Matrix.any? fn x -> x != 0 end
-      :else           ->
-        false
-    end
+    Matrix.num_columns(tetramino.shape) + tetramino.x > 10
   end
 end

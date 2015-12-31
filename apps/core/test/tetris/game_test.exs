@@ -46,11 +46,11 @@ defmodule Tetris.GameTest do
     assert is_pid player2.board
 
     stone1 = Tetris.Board.get_current_stone(player1.board)
-    assert stone1.x == 3
+    assert stone1.x == 4
     assert stone1.y == 0
 
     stone2 = Tetris.Board.get_current_stone(player1.board)
-    assert stone2.x == 3
+    assert stone2.x == 4
     assert stone2.y == 0
   end
 

@@ -178,4 +178,16 @@ defmodule Tetris.TetraminoTest do
     assert original_piece.x == rotated_piece.x+1
     assert original_piece.x == second_rotated_piece.x
   end
+
+  test "#rotating a shape and it will be out of the board, if is in again" do
+    original_piece = %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 0}
+    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
+
+    assert rotated_piece.x == 0
+
+    original_piece = %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 9}
+    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
+
+    assert rotated_piece.x == 6
+  end
 end

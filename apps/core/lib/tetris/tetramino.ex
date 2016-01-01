@@ -91,13 +91,13 @@ defmodule Tetris.Tetramino do
   def rotate_left(tetramino) do
     new_shape = Shape.rotate_left(tetramino.shape)
     x_adjust = shape_adjustment(new_shape)
-    %Tetris.Tetramino{tetramino | shape: new_shape, x: tetramino.x + x_adjust}
+    adjust_stone_to_board %Tetris.Tetramino{tetramino | shape: new_shape, x: tetramino.x + x_adjust}
   end
 
   def rotate_right(tetramino) do
     new_shape = Shape.rotate_right(tetramino.shape)
     x_adjust = -shape_adjustment(new_shape)
-    %Tetris.Tetramino{tetramino | shape: new_shape, x: tetramino.x + x_adjust}
+    adjust_stone_to_board %Tetris.Tetramino{tetramino | shape: new_shape, x: tetramino.x + x_adjust}
   end
 
   defp shape_adjustment(shape) do
@@ -120,4 +120,15 @@ defmodule Tetris.Tetramino do
   def move_down(tetramino) do
     %Tetris.Tetramino{tetramino | y: tetramino.y+1}
   end
+
+  defp adjust_stone_to_board(tetramino) do
+    tetramino_width = Matrix.num_columns(tetramino.shape)
+    new_x = cond do
+      tetramino.x < 0                   -> 0
+      tetramino.x > 10 - tetramino_width -> 10 - tetramino_width
+      true                              -> tetramino.x
+    end
+    %Tetris.Tetramino{tetramino | x: new_x}
+  end
+
 end

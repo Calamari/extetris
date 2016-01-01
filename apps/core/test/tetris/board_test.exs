@@ -377,7 +377,22 @@ defmodule Tetris.BoardTest do
     assert !is_nil Tetris.Board.get_current_stone board
   end
 
+  test "#tick increments finished lines counter", %{board: board} do
+    Tetris.Board.set_layout(board, @some_playground)
+    tetramino = Tetris.Tetramino.create_from_shape(1) # I-shape
+    tetramino = %Tetris.Tetramino{tetramino | x: 9, y: 19}
+    Tetris.Board.set_stone board, tetramino
+
+    assert Tetris.Board.get_finished_lines(board) == 0
+
+    Tetris.Board.tick board
+    Tetris.Board.tick board
+
+    assert Tetris.Board.get_finished_lines(board) == 2
+  end
+
   test "given on_tick callback is called after each tick" do
+    # HOWTO test that?
     # {:ok, board} = Tetris.Board.start_link on_tick: fn (layout) ->
   end
 

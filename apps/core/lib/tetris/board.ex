@@ -17,6 +17,7 @@ defmodule Tetris.Board do
         @row, @row, @row, @row, @row, @row, @row, @row, @row, @row,
         @row, @row
       ],
+      finished_lines: 0,
       is_finished: false,
       next_stone: nil,
       current_stone: nil
@@ -112,6 +113,14 @@ defmodule Tetris.Board do
 
 
   @doc """
+  Returns number of finished lines
+  """
+  def get_finished_lines(board) do
+    GenServer.call(board, {:get_finished_lines})
+  end
+
+
+  @doc """
   Fixes the current stone to the bottom of the lane where it falls down.
   """
   def drop_stone(board) do
@@ -175,6 +184,7 @@ defmodule Tetris.Board do
     end
 
     state = %{state: %State{}, next_stone_callback: next_stone_callback}
+    # REFACTOR: make state the %State object directly
     {:ok, state}
   end
 
@@ -203,7 +213,7 @@ defmodule Tetris.Board do
     rows = state.state.rows |>
       Matrix.remove_row(index) |>
       Matrix.insert_row(0, @row)
-    state = Dict.put(state, :state, %{state.state | rows: rows})
+    Dict.put(state, :state, %{state.state | rows: rows, finished_lines: state.state.finished_lines + 1})
   end
 
   def handle_call({:set_layout, rows}, _from, state) do
@@ -225,6 +235,10 @@ defmodule Tetris.Board do
 
   def handle_call({:is_finished}, _from, state) do
     {:reply, state.state.is_finished, state}
+  end
+
+  def handle_call({:get_finished_lines}, _from, state) do
+    {:reply, state.state.finished_lines, state}
   end
 
   def handle_call({:drop_stone}, _from, state) do

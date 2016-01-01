@@ -86,6 +86,13 @@ defmodule Tetris.Game do
     end
   end
 
+  def start_game(game, opts) do
+    case start_game(game) do
+      {:error, :GAME_NOT_READY} -> {:error, :GAME_NOT_READY}
+      _                         -> if opts[:loop], do: GenServer.call(game, {:start_loop})
+    end
+  end
+
   @doc """
   Returns the board of given player.
 
@@ -138,6 +145,12 @@ defmodule Tetris.Game do
       %Tetris.Player{player | board: board}
     end))
 
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:start_loop}, _from, state) do
+    boards = Enum.map state.players, fn (player) -> player.board end
+    state = Dict.put(state, :game_loop, Tetris.GameLoop.start(boards, 750))
     {:reply, :ok, state}
   end
 

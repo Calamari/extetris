@@ -184,14 +184,27 @@ defmodule Tetris.Board do
   end
 
 
+  @doc """
+  Removes rows counted from the bottom
+  """
   def handle_call({:remove_row, index}, _from, state) do
-    rows = state.state.rows |>
-      Matrix.remove_row(@number_rows - index - 1) |>
-      Matrix.insert_row(0, @row)
-    state = Dict.put(state, :state, %{state.state | rows: rows})
-    {:reply, :ok, state}
+    {:reply, :ok, do_remove_row(state, @number_rows - index - 1)}
   end
 
+  defp do_remove_rows(state, []), do: state
+
+  defp do_remove_rows(state, [index|rows]) do
+    state
+    |> do_remove_row(index)
+    |> do_remove_rows(rows)
+  end
+
+  defp do_remove_row(state, index) do
+    rows = state.state.rows |>
+      Matrix.remove_row(index) |>
+      Matrix.insert_row(0, @row)
+    state = Dict.put(state, :state, %{state.state | rows: rows})
+  end
 
   def handle_call({:set_layout, rows}, _from, state) do
     state = Dict.put(state, :state, %{state.state | rows: rows})
@@ -227,12 +240,28 @@ defmodule Tetris.Board do
 
   def handle_call({:tick}, _from, state) do
     if !state.state.is_finished do
-      state = case state.state.current_stone do
-        nil -> create_new_tetramino(state)
-        tetramino -> move_tetramino_down(state, tetramino)
-      end
+      state = do_tick(state, state.state.current_stone)
     end
     {:reply, state.state.current_stone, state}
+  end
+
+  defp do_tick(state, nil) do
+    filled_rows = get_filled_rows(state)
+    if !Enum.empty?(filled_rows) do
+      do_remove_rows(state, filled_rows)
+    else
+      create_new_tetramino(state)
+    end
+  end
+  defp do_tick(state, tetramino) do
+    move_tetramino_down(state, tetramino)
+  end
+
+  defp get_filled_rows(state) do
+    t=Matrix.map_rows state.state.rows, fn (row, index) ->
+      if row_full?(row), do: index, else: nil
+    end
+    Enum.filter t, &(&1)
   end
 
   defp create_new_tetramino(state) do

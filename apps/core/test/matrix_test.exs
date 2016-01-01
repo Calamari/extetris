@@ -184,6 +184,48 @@ defmodule MatrixTest do
     ]
   end
 
+  test "#map can also be used with index" do
+    init_matrix = [
+      [0,1,0],
+      [0,2,0],
+      [0,3,0]
+    ]
+
+    assert Matrix.map(init_matrix, fn(x, index) -> x+index end) == [
+      [0,1,0],
+      [1,3,1],
+      [2,5,2]
+    ]
+  end
+
+  test "#map_rows maps through each row" do
+    init_matrix = [
+      [0,1,0],
+      [0,2,0],
+      [0,3,0]
+    ]
+
+    assert Matrix.map_rows(init_matrix, fn(row) -> [9|row] end) == [
+      [9,0,1,0],
+      [9,0,2,0],
+      [9,0,3,0]
+    ]
+  end
+
+  test "#map_rows can have an index" do
+    init_matrix = [
+      [0,1,0],
+      [0,2,0],
+      [0,3,0]
+    ]
+
+    assert Matrix.map_rows(init_matrix, fn(row, index) -> [index|row] end) == [
+      [0,0,1,0],
+      [1,0,2,0],
+      [2,0,3,0]
+    ]
+  end
+
   test "#multiply returns error for not same sized matrices" do
     matrix_a = [
       [0,1,0],

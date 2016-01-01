@@ -357,6 +357,26 @@ defmodule Tetris.BoardTest do
     assert Tetris.Board.get_current_layout(board) == layout_after_last_tick
   end
 
+  test "#tick does first replace the row if it is full, before getting a new stone out", %{board: board} do
+    Tetris.Board.set_layout(board, @some_playground)
+    tetramino = Tetris.Tetramino.create_from_shape(1) # I-shape
+    tetramino = %Tetris.Tetramino{tetramino | x: 9, y: 19}
+    Tetris.Board.set_stone board, tetramino
+
+    Tetris.Board.tick board
+    assert is_nil Tetris.Board.get_current_stone board
+    layout = Tetris.Board.get_current_layout board
+    assert Matrix.row_at(layout, 20) == [1,1,1,1,1,1,1,1,1,1]
+
+    Tetris.Board.tick board
+    assert is_nil Tetris.Board.get_current_stone board
+    layout = Tetris.Board.get_current_layout board
+    assert Matrix.row_at(layout, 20) == [0,0,0,0,0,0,0,1,0,0]
+
+    Tetris.Board.tick board
+    assert !is_nil Tetris.Board.get_current_stone board
+  end
+
   test "given on_tick callback is called after each tick" do
     # {:ok, board} = Tetris.Board.start_link on_tick: fn (layout) ->
   end

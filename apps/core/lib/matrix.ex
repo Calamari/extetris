@@ -233,7 +233,31 @@ defmodule Matrix do
   @spec map(matrix, (number -> number)) :: matrix
 
   def map(matrix, fun) do
-    Enum.map matrix, fn (row) -> Enum.map(row, fun) end
+    if is_function(fun, 2) do
+      matrix
+      |> Enum.with_index
+      |> Enum.map fn ({row, index}) ->
+        Enum.map(row, fn (x) -> fun.(x, index) end)
+      end
+    else
+      Enum.map matrix, fn (row) -> Enum.map(row, fun) end
+    end
+  end
+
+  @doc """
+  Calls given callback on every row of matrix and creates a new array with
+  returned values
+  """
+  @spec map_rows(matrix, (number -> number)) :: matrix
+
+  def map_rows(matrix, fun) do
+    if is_function(fun, 2) do
+      matrix
+      |> Enum.with_index
+      |> Enum.map fn ({row, index}) -> fun.(row, index) end
+    else
+      Enum.map matrix, fun
+    end
   end
 
 

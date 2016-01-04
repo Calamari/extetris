@@ -47,9 +47,9 @@ defmodule Tetris.Control do
     %Tetris.Tetramino{tetramino | x: tetramino.x-1}
   end
   defp do_handle(tetramino, :rotate_left) do
-    Tetris.Tetramino.rotate_left tetramino
+    Tetris.Tetramino.rotate :left, tetramino
   end
   defp do_handle(tetramino, :rotate_right) do
-    Tetris.Tetramino.rotate_right tetramino
+    Tetris.Tetramino.rotate :right, tetramino
   end
 end

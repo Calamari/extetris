@@ -1,80 +1,3 @@
-defmodule Tetris.Tetramino.ShapeTest do
-  use ExUnit.Case, async: true
-  doctest Tetris.Tetramino.Shape
-
-  test "#random returns a Tetramino.Shape" do
-    assert Enum.count(Tetris.Tetramino.Shape.random) <= 4
-  end
-
-  test "#random returns a (mostly) random shape" do
-    assert Tetris.Tetramino.Shape.random != Tetris.Tetramino.Shape.random
-  end
-
-  test "#rotate_right rotates piece one step to the right" do
-    original_piece = Tetris.Tetramino.Shape.get_shape(1)
-
-    assert original_piece == [
-      [1],
-      [1],
-      [1],
-      [1]
-    ]
-    rotated_piece = Tetris.Tetramino.Shape.rotate_right(original_piece)
-
-    assert rotated_piece == [
-      [1,1,1,1]
-    ]
-    second_rotated_piece = Tetris.Tetramino.Shape.rotate_right(rotated_piece)
-
-    assert second_rotated_piece == [
-      [1],
-      [1],
-      [1],
-      [1]
-    ]
-    third_rotated_piece = Tetris.Tetramino.Shape.rotate_right(second_rotated_piece)
-
-    assert third_rotated_piece == [
-      [1,1,1,1]
-    ]
-    fourth_rotated_piece = Tetris.Tetramino.Shape.rotate_right(third_rotated_piece)
-
-    assert fourth_rotated_piece == original_piece
-  end
-
-  test "#rotate_left rotates piece one step to the left" do
-    original_piece = Tetris.Tetramino.Shape.get_shape(1)
-
-    assert original_piece == [
-      [1],
-      [1],
-      [1],
-      [1]
-    ]
-    rotated_piece = Tetris.Tetramino.Shape.rotate_left(original_piece)
-
-    assert rotated_piece == [
-      [1,1,1,1]
-    ]
-    second_rotated_piece = Tetris.Tetramino.Shape.rotate_left(rotated_piece)
-
-    assert second_rotated_piece == [
-      [1],
-      [1],
-      [1],
-      [1]
-    ]
-    third_rotated_piece = Tetris.Tetramino.Shape.rotate_left(second_rotated_piece)
-
-    assert third_rotated_piece == [
-      [1,1,1,1]
-    ]
-    fourth_rotated_piece = Tetris.Tetramino.Shape.rotate_left(third_rotated_piece)
-
-    assert fourth_rotated_piece == original_piece
-  end
-end
-
 defmodule Tetris.TetraminoTest do
   use ExUnit.Case, async: true
   doctest Tetris.Tetramino
@@ -83,22 +6,66 @@ defmodule Tetris.TetraminoTest do
     assert Tetris.Tetramino.create_random.shape != Tetris.Tetramino.create_random.shape
   end
 
-  test "#create_random always positions on y:0" do
-    assert Tetris.Tetramino.create_random.y == 0
+  test "#create has correct positionings initially" do
+    assert Tetris.Tetramino.create(1).x == 5
+    assert Tetris.Tetramino.create(1).y == 1
+    assert Tetris.Tetramino.create(2).x == 4
+    assert Tetris.Tetramino.create(2).y == 2
+    assert Tetris.Tetramino.create(3).x == 4
+    assert Tetris.Tetramino.create(3).y == 2
+    assert Tetris.Tetramino.create(4).x == 4
+    assert Tetris.Tetramino.create(4).y == 2
+    assert Tetris.Tetramino.create(5).x == 4
+    assert Tetris.Tetramino.create(5).y == 1
+    assert Tetris.Tetramino.create(6).x == 3
+    assert Tetris.Tetramino.create(6).y == 1
+    assert Tetris.Tetramino.create(7).x == 4
+    assert Tetris.Tetramino.create(7).y == 2
   end
 
-  test "#create_from_shape positions the item correctly" do
-    assert Tetris.Tetramino.create_from_shape(1).x == 5
-    assert Tetris.Tetramino.create_from_shape(2).x == 4
-    assert Tetris.Tetramino.create_from_shape(3).x == 4
-    assert Tetris.Tetramino.create_from_shape(4).x == 4
-    assert Tetris.Tetramino.create_from_shape(5).x == 4
-    assert Tetris.Tetramino.create_from_shape(6).x == 4
-    assert Tetris.Tetramino.create_from_shape(7).x == 4
+  test "#get_rotation returns the current rotation tupel" do
+    tupel = Tetris.Tetramino.get_rotation(1, [[1,1,1,1]])
+    assert tupel == {[
+      [1,1,1,1]
+    ], -1, 0}
   end
 
-  test "#rotate_right rotates piece one step to the right" do
-    original_piece = Tetris.Tetramino.create_from_shape(1)
+  test "#get_rotation(:right) returns the next rotation tupel" do
+    tupel = Tetris.Tetramino.get_rotation(:right, 1, [[1],[1],[1],[1]])
+    assert tupel == {[
+      [1,1,1,1]
+    ], -1, 0}
+  end
+
+  test "#get_rotation(:right) returns the next rotation tupel and wraps around the rotation cycle" do
+    tupel = Tetris.Tetramino.get_rotation(:right, 1, [[1,1,1,1]])
+    assert tupel == {[
+      [1],
+      [1],
+      [1],
+      [1]
+    ], 1, -1}
+  end
+
+  test "#get_rotation(:left) returns the previous rotation tupel" do
+    tupel = Tetris.Tetramino.get_rotation(:left, 1, [[1],[1],[1],[1]])
+    assert tupel == {[
+      [1,1,1,1]
+    ], -1, 0}
+  end
+
+  test "#get_rotation(:left) returns the previous rotation tupel and wraps around the rotation cycle" do
+    tupel = Tetris.Tetramino.get_rotation(:left, 1, [[1,1,1,1]])
+    assert tupel == {[
+      [1],
+      [1],
+      [1],
+      [1]
+    ], 1, -1}
+  end
+
+  test "#rotate(:right) rotates piece to the right and adapts the positioning to feel right" do
+    original_piece = Tetris.Tetramino.create(1)
 
     assert original_piece.shape == [
       [1],
@@ -106,87 +73,60 @@ defmodule Tetris.TetraminoTest do
       [1],
       [1]
     ]
-    rotated_piece = Tetris.Tetramino.rotate_right(original_piece)
+    assert original_piece.x == 5
+    assert original_piece.y == 1
+    rotated_piece = Tetris.Tetramino.rotate(:right, original_piece)
 
     assert rotated_piece.shape == [
       [1,1,1,1]
     ]
-    second_rotated_piece = Tetris.Tetramino.rotate_right(rotated_piece)
+    assert rotated_piece.x == 3
+    assert rotated_piece.y == 2
+    second_rotated_piece = Tetris.Tetramino.rotate(:right, rotated_piece)
 
-    assert second_rotated_piece.shape == [
-      [1],
-      [1],
-      [1],
-      [1]
-    ]
-    third_rotated_piece = Tetris.Tetramino.rotate_right(second_rotated_piece)
-
-    assert third_rotated_piece.shape == [
-      [1,1,1,1]
-    ]
-    fourth_rotated_piece = Tetris.Tetramino.rotate_right(third_rotated_piece)
-
-    assert fourth_rotated_piece == original_piece
+    assert second_rotated_piece == original_piece
   end
 
-  test "#rotate_left rotates piece one step to the left" do
-    original_piece = Tetris.Tetramino.create_from_shape(1)
+  test "#rotate(:left) rotates piece to the left and adapts the positioning to feel right" do
+    original_piece = Tetris.Tetramino.create(7)
 
     assert original_piece.shape == [
-      [1],
-      [1],
-      [1],
-      [1]
+        [7,7,7],
+        [0,7,0]
     ]
-    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
+    assert original_piece.x == 4
+    assert original_piece.y == 2
+    rotated_piece = Tetris.Tetramino.rotate(:left, original_piece)
 
     assert rotated_piece.shape == [
-      [1,1,1,1]
+        [7,0],
+        [7,7],
+        [7,0]
     ]
-    second_rotated_piece = Tetris.Tetramino.rotate_left(rotated_piece)
+    assert rotated_piece.x == 5
+    assert rotated_piece.y == 1
+    second_rotated_piece = Tetris.Tetramino.rotate(:left, rotated_piece)
 
     assert second_rotated_piece.shape == [
-      [1],
-      [1],
-      [1],
-      [1]
+        [0,7,0],
+        [7,7,7]
     ]
-    third_rotated_piece = Tetris.Tetramino.rotate_left(second_rotated_piece)
+    assert second_rotated_piece.x == 4
+    assert second_rotated_piece.y == 2
+    third_rotated_piece = Tetris.Tetramino.rotate(:left, second_rotated_piece)
 
-    assert third_rotated_piece.shape == [
-      [1,1,1,1]
-    ]
-    fourth_rotated_piece = Tetris.Tetramino.rotate_left(third_rotated_piece)
-
+    fourth_rotated_piece = Tetris.Tetramino.rotate(:left, third_rotated_piece)
     assert fourth_rotated_piece == original_piece
-  end
-
-  test "#rotating a stone with dimensions 3:2 does not affect x size" do
-    original_piece = Tetris.Tetramino.create_from_shape(3)
-    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
-    second_rotated_piece = Tetris.Tetramino.rotate_left(rotated_piece)
-
-    assert original_piece.x == rotated_piece.x
-    assert original_piece.x == second_rotated_piece.x
-  end
-
-  test "#rotating a stone with dimensions 4:1 does affect x size" do
-    original_piece = Tetris.Tetramino.create_from_shape(1)
-    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
-    second_rotated_piece = Tetris.Tetramino.rotate_left(rotated_piece)
-
-    assert original_piece.x == rotated_piece.x+1
-    assert original_piece.x == second_rotated_piece.x
   end
 
   test "#rotating a shape and it will be out of the board, if is in again" do
-    original_piece = %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 0}
-    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
+    original_piece = %Tetris.Tetramino{Tetris.Tetramino.create(1) | x: 0}
+    rotated_piece = Tetris.Tetramino.rotate(:right, original_piece)
 
     assert rotated_piece.x == 0
 
-    original_piece = %Tetris.Tetramino{Tetris.Tetramino.create_from_shape(1) | x: 9}
-    rotated_piece = Tetris.Tetramino.rotate_left(original_piece)
+    original_piece = %Tetris.Tetramino{Tetris.Tetramino.create(1) | x: 9}
+    rotated_piece = Tetris.Tetramino.rotate(:right, original_piece)
 
     assert rotated_piece.x == 6
   end

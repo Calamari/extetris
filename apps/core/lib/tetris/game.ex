@@ -140,8 +140,9 @@ defmodule Tetris.Game do
   def handle_call({:start_game}, _from, state) do
     state = Dict.put(state, :started, true)
     state = Dict.put(state, :players, Enum.map(state.players, fn (player) ->
-      {:ok, board} = Tetris.Board.start_link next_stone_callback: fn -> Tetris.Tetramino.create_random end
-      Tetris.Board.set_stone board, Tetris.Tetramino.create_random
+      next_stone = fn -> Tetris.Tetramino.create_random end
+      {:ok, board} = Tetris.Board.start_link next_stone_callback: next_stone
+      Tetris.Board.set_stone board, next_stone.()
       %Tetris.Player{player | board: board}
     end))
 

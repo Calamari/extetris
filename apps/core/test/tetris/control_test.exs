@@ -79,7 +79,7 @@ defmodule Tetris.ControlTest do
     {:ok, empty_board} = Tetris.Board.start_link
     {:ok, board} = Tetris.Board.start_link
     Tetris.Board.set_layout board, @some_playground
-    tetramino = Tetris.Tetramino.create_from_shape(2)
+    tetramino = Tetris.Tetramino.create(2)
     Tetris.Board.set_stone board, tetramino
     Tetris.Board.set_stone empty_board, tetramino
     {:ok, board: board, empty_board: empty_board}
@@ -114,15 +114,15 @@ defmodule Tetris.ControlTest do
 
   test "#handle handles moving down", %{empty_board: board} do
     Tetris.Control.handle(board, :move_down)
-    assert Tetris.Board.get_current_stone(board).y == 1
-    Tetris.Control.handle(board, :move_down)
-    assert Tetris.Board.get_current_stone(board).y == 2
-    Tetris.Control.handle(board, :move_down)
     assert Tetris.Board.get_current_stone(board).y == 3
+    Tetris.Control.handle(board, :move_down)
+    assert Tetris.Board.get_current_stone(board).y == 4
+    Tetris.Control.handle(board, :move_down)
+    assert Tetris.Board.get_current_stone(board).y == 5
   end
 
   test "#handle handles rotating left", %{empty_board: board} do
-    tetramino = Tetris.Tetramino.create_from_shape(1)
+    tetramino = Tetris.Tetramino.create(1)
     Tetris.Board.set_stone board, tetramino
 
     Tetris.Control.handle(board, :rotate_left)
@@ -132,7 +132,7 @@ defmodule Tetris.ControlTest do
   end
 
   test "#handle handles rotating right", %{empty_board: board} do
-    tetramino = Tetris.Tetramino.create_from_shape(1)
+    tetramino = Tetris.Tetramino.create(1)
     Tetris.Board.set_stone board, tetramino
 
     Tetris.Control.handle(board, :rotate_right)

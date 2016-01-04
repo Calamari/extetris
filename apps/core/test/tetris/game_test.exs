@@ -46,13 +46,19 @@ defmodule Tetris.GameTest do
     assert is_pid player2.board
 
     stone1 = Tetris.Board.get_current_stone(player1.board)
-    assert stone1.x == 4
-    assert stone1.y == 0
+    assert !is_nil stone1
 
     stone2 = Tetris.Board.get_current_stone(player1.board)
-    assert stone2.x == 4
-    assert stone2.y == 0
+    assert !is_nil stone2
   end
+
+  # test "#start_game can also start a game loop", %{game: game} do
+  #   Tetris.Game.add_player(game, %Tetris.Player{name: 'Doe' })
+  #   Tetris.Game.start_game(game, loop: true)
+
+  #   [player1, player2] = Tetris.Game.players(game)
+  #   assert is_pid player1.board
+  # end
 
   # TODO: Do this functionality and then uncomment it.
   #       Maybe do this as game config.

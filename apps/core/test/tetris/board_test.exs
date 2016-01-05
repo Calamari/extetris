@@ -360,7 +360,7 @@ defmodule Tetris.BoardTest do
   test "#tick does first replace the row if it is full, before getting a new stone out", %{board: board} do
     Tetris.Board.set_layout(board, @some_playground)
     tetramino = Tetris.Tetramino.create(1) # I-shape
-    tetramino = %Tetris.Tetramino{tetramino | x: 9, y: 19}
+    tetramino = %Tetris.Tetramino{tetramino | x: 9, y: 18}
     Tetris.Board.set_stone board, tetramino
 
     Tetris.Board.tick board
@@ -371,7 +371,7 @@ defmodule Tetris.BoardTest do
     Tetris.Board.tick board
     assert is_nil Tetris.Board.get_current_stone board
     layout = Tetris.Board.get_current_layout board
-    assert Matrix.row_at(layout, 20) == [0,0,0,0,0,0,0,1,0,0]
+    assert Matrix.row_at(layout, 20) == [0,0,0,0,0,0,0,1,0,1]
 
     Tetris.Board.tick board
     assert !is_nil Tetris.Board.get_current_stone board
@@ -380,7 +380,7 @@ defmodule Tetris.BoardTest do
   test "#tick increments finished lines counter", %{board: board} do
     Tetris.Board.set_layout(board, @some_playground)
     tetramino = Tetris.Tetramino.create(1) # I-shape
-    tetramino = %Tetris.Tetramino{tetramino | x: 9, y: 19}
+    tetramino = %Tetris.Tetramino{tetramino | x: 9, y: 18}
     Tetris.Board.set_stone board, tetramino
 
     assert Tetris.Board.get_finished_lines(board) == 0

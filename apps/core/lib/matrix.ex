@@ -89,8 +89,8 @@ defmodule Matrix do
 
   defp zipped_map(matrix1, matrix2, fun) do
     if size(matrix1) == size(matrix2) do
-      Stream.zip(matrix1, matrix2) |>
-        Enum.map fun
+      Stream.zip(matrix1, matrix2)
+      |> Enum.map(fun)
     else
       {:error, :NOT_SAME_SIZE}
     end
@@ -115,8 +115,8 @@ defmodule Matrix do
 
   def zip(matrix1, matrix2) do
     if size(matrix1) == size(matrix2) do
-      Stream.zip(matrix1, matrix2) |>
-        Enum.map fn {x,y} -> Enum.zip x, y end
+      Stream.zip(matrix1, matrix2)
+      |> Enum.map(fn {x,y} -> Enum.zip x, y end)
     else
       {:error, :NOT_SAME_SIZE}
     end
@@ -236,9 +236,9 @@ defmodule Matrix do
     if is_function(fun, 2) do
       matrix
       |> Enum.with_index
-      |> Enum.map fn ({row, index}) ->
+      |> Enum.map(fn ({row, index}) ->
         Enum.map(row, fn (x) -> fun.(x, index) end)
-      end
+      end)
     else
       Enum.map matrix, fn (row) -> Enum.map(row, fun) end
     end
@@ -254,7 +254,7 @@ defmodule Matrix do
     if is_function(fun, 2) do
       matrix
       |> Enum.with_index
-      |> Enum.map fn ({row, index}) -> fun.(row, index) end
+      |> Enum.map(fn ({row, index}) -> fun.(row, index) end)
     else
       Enum.map matrix, fun
     end
@@ -267,8 +267,8 @@ defmodule Matrix do
   @spec slice(matrix, number, number, number, number) :: matrix
 
   def slice(matrix, x, y, w, h) do
-    Enum.slice(matrix, y, h) |>
-      Enum.map fn (row) -> Enum.slice(row, x, w) end
+    Enum.slice(matrix, y, h)
+    |> Enum.map(fn (row) -> Enum.slice(row, x, w) end)
   end
 
 
@@ -310,7 +310,8 @@ defmodule Matrix do
   @spec add_rows(row, row) :: row
 
   def add_rows(row1, row2) do
-    Stream.zip(row1, row2) |> Enum.map fn({x,y}) -> x + y end
+    Stream.zip(row1, row2)
+    |> Enum.map(fn({x,y}) -> x + y end)
   end
 
 
@@ -323,7 +324,8 @@ defmodule Matrix do
   @spec multiply_rows(row, row) :: row
 
   def multiply_rows(row1, row2) do
-    Stream.zip(row1, row2) |> Enum.map fn({x,y}) -> x * y end
+    Stream.zip(row1, row2)
+    |> Enum.map(fn({x,y}) -> x * y end)
   end
 
   @doc """
@@ -335,7 +337,8 @@ defmodule Matrix do
   @spec subtract_rows(row, row) :: row
 
   def subtract_rows(row1, row2) do
-    Stream.zip(row1, row2) |> Enum.map fn({x,y}) -> x - y end
+    Stream.zip(row1, row2)
+    |> Enum.map(fn({x,y}) -> x - y end)
   end
 
 

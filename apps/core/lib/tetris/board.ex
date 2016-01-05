@@ -74,8 +74,8 @@ defmodule Tetris.Board do
     rows_on_the_board = Enum.min [Matrix.num_rows(tetramino.shape), Matrix.num_rows(rows) - tetramino.y]
     spliced_rows = rows
                    |> Matrix.rows_at(tetramino.y, rows_on_the_board)
-                   |> Matrix.add padded_stone(tetramino)
-                   |> Matrix.rows_at 0, rows_on_the_board
+                   |> Matrix.add(padded_stone(tetramino))
+                   |> Matrix.rows_at(0, rows_on_the_board)
     Matrix.replace_rows(rows, tetramino.y, spliced_rows)
   end
 
@@ -201,24 +201,13 @@ defmodule Tetris.Board do
     {:reply, :ok, do_remove_row(state, @number_rows - index - 1)}
   end
 
-  defp do_remove_rows(state, []), do: state
-
-  defp do_remove_rows(state, [index|rows]) do
-    state
-    |> do_remove_row(index)
-    |> do_remove_rows(rows)
-  end
-
-  defp do_remove_row(state, index) do
-    rows = state.state.rows |>
-      Matrix.remove_row(index) |>
-      Matrix.insert_row(0, @row)
-    Dict.put(state, :state, %{state.state | rows: rows, finished_lines: state.state.finished_lines + 1})
-  end
-
   def handle_call({:set_layout, rows}, _from, state) do
     state = Dict.put(state, :state, %{state.state | rows: rows})
     {:reply, state.state.rows, state}
+  end
+
+  def handle_call({:on_tick, on_tick_callback}, _from, state) do
+    {:reply, :ok, %{state | on_tick_callback: on_tick_callback}}
   end
 
 
@@ -244,8 +233,9 @@ defmodule Tetris.Board do
   def handle_call({:drop_stone}, _from, state) do
     tetramino = state.state.current_stone
     if tetramino do
-      rows = do_drop_stone(tetramino, state.state.rows) |>
-        fix_stone_to_board state.state.rows
+      rows = tetramino
+      |> do_drop_stone(state.state.rows)
+      |> fix_stone_to_board(state.state.rows)
       state = Dict.put(state, :state, %{state.state | current_stone: nil, rows: rows})
     end
     {:reply, :ok, state}
@@ -257,6 +247,21 @@ defmodule Tetris.Board do
       state = do_tick(state, state.state.current_stone)
     end
     {:reply, state.state.current_stone, state}
+  end
+
+  defp do_remove_rows(state, []), do: state
+
+  defp do_remove_rows(state, [index|rows]) do
+    state
+    |> do_remove_row(index)
+    |> do_remove_rows(rows)
+  end
+
+  defp do_remove_row(state, index) do
+    rows = state.state.rows |>
+      Matrix.remove_row(index) |>
+      Matrix.insert_row(0, @row)
+    Dict.put(state, :state, %{state.state | rows: rows, finished_lines: state.state.finished_lines + 1})
   end
 
   defp do_tick(state, nil) do
@@ -322,10 +327,10 @@ defmodule Tetris.Board do
     rows
     |> Matrix.slice(tetramino.x, tetramino.y, w, h)
     |> Stream.zip(tetramino.shape)
-    |> Enum.any? fn {ra, rb} ->
-      Stream.zip(ra, rb) |>
-        Enum.any? fn {a, b} -> a != 0 && b != 0 end
-    end
+    |> Enum.any?(fn {ra, rb} ->
+      Stream.zip(ra, rb)
+      |> Enum.any?(fn {a, b} -> a != 0 && b != 0 end)
+    end)
   end
 
   defp below_board?(tetramino) do

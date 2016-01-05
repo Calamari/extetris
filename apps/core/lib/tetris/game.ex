@@ -41,7 +41,7 @@ defmodule Tetris.Game do
   true
   """
   def player?(game, player) do
-    GenServer.call(game, {:get_players}) |> Enum.member? player
+    GenServer.call(game, {:get_players}) |> Enum.member?(player)
   end
 
   @doc """
